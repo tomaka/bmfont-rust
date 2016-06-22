@@ -10,13 +10,13 @@ mod sections;
 mod string_parse_error;
 mod utils;
 
+pub use self::char::Char;
 pub use self::config_parse_error::ConfigParseError;
 pub use self::error::Error;
 pub use self::rect::Rect;
 pub use self::string_parse_error::StringParseError;
 
 use std::io::Read;
-use self::char::Char;
 use self::kerning_value::KerningValue;
 use self::page::Page;
 use self::sections::Sections;
@@ -88,6 +88,20 @@ impl BMFont {
 
     pub fn line_height(&self) -> u32 {
         self.line_height
+    }
+
+    pub fn glyph_info(&self, char_id: u32) -> Result<Char, ()> {
+        if let Some(c) = self.characters.iter().find(|c| c.id == char_id) {
+            Ok(c.clone())
+        } else {
+            Err(())
+        }
+    }
+
+    pub fn kerning_value(&self, first_char_id: u32, second_char_id: u32) -> i32 {
+        self.kerning_values.iter().find(|k| {
+            k.first_char_id == first_char_id && k.second_char_id == second_char_id
+        }).map(|k| k.value).unwrap_or(0)
     }
 
     pub fn pages(&self) -> Vec<String> {
